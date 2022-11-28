@@ -60,7 +60,7 @@
     </div>
 
     <div class="w3-container" style="margin-left: 70px">
-      <h2>Suppliers</h2>
+      <h2 style="font-weight: bold;">Suppliers</h2>
       <div class="first w3-container w3-border w3-round-xlarge">
         <div class="w3-row w3-section">
           <div class="w3-col" style="width: 50px">
@@ -84,36 +84,19 @@
               <tr class="w3-light-grey">
                 <th>Code</th>
                 <th>Name</th>
-                <th>Bank Account</th>
                 <th>Address</th>
+                <th>Bank Account</th>
                 <th>Tax code</th>
                 <th>Partner staff code</th>
               </tr>
             </thead>
-            <tr>
-              <td>XXX1</td>
-              <td>Jet Smith</td>
-              <td>1342135123</td>
-              <td>1234 ABC street</td>
-              <td>1345235</td>
-              <td>1345235</td>
-            </tr>
-            <tr>
-              <td>XXX2</td>
-              <td>Eve Jackson</td>
-              <td>142342142</td>
-              <td>1234 ABC street</td>
-              <td>15235234</td>
-              <td>1345235</td>
-            </tr>
-            <tr>
-              <td>XXX3</td>
-              <td>Adam Johnson</td>
-              <td>13424124</td>
-              <td>1234 ABC street</td>
-              <td>134234</td>
-              <td>1345235</td>
-            </tr>
+            {{#each suppliers}}
+              <tr>
+                {{#each this}}
+                  <td>{{this}}</td>
+                {{/each}}
+              </tr>
+            {{/each}}
           </table>
         </div>
       </div>

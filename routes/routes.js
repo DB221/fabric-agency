@@ -12,9 +12,8 @@ router.get("/", async (req, res) => {
 
 // get all suppliers (for suppliers view)
 router.get("/suppliers", async (req, res) => {
-  // const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
-  // res.send(suppliers);
-  res.render("suppliers");
+  const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
+  res.render("suppliers", { suppliers: suppliers.rows });
 });
 
 // 2. Add information for a new supplier
@@ -36,8 +35,8 @@ router.get("/supplier/:sCode/categories", auth, async (req, res) => {
 
 // get all customers (for customer view)
 router.get("/customers", async (req, res) => {
-  // const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
-  res.render("customers");
+  const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
+  res.render("customers", { customers: customers.rows });
 });
 
 // 4. Report that provides full information about the order for each category of a customer
@@ -49,8 +48,8 @@ router.get("/report/customer", async (req, res) => {
 
 // get all categories (for categories view)
 router.get("/categories", async (req, res) => {
-  // const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
-  res.render("categories");
+  const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
+  res.render("categories", { categories: categories.rows });
 });
 
 // login

@@ -60,7 +60,7 @@
     </div>
 
     <div class="w3-container" style="margin-left: 70px">
-      <h2>Customers</h2>
+      <h2 style="font-weight: bold;">Customers</h2>
       <div class="first w3-container w3-border w3-round-xlarge">
         <div class="w3-row w3-section">
           <div class="w3-col" style="width: 50px">
@@ -90,30 +90,13 @@
                 <th>Office staff code</th>
               </tr>
             </thead>
-            <tr>
-              <td>XXX1</td>
-              <td>Silk</td>
-              <td>Black</td>
-              <td>1342135123</td>
-              <td>123 ABC street</td>
-              <td>12312412</td>
-            </tr>
-            <tr>
-              <td>XXX2</td>
-              <td>Khaki</td>
-              <td>Blue</td>
-              <td>1342135123</td>
-              <td>123 ABC street</td>
-              <td>2342323523</td>
-            </tr>
-            <tr>
-              <td>XXX3</td>
-              <td>Crewel</td>
-              <td>Green</td>
-              <td>1342135123</td>
-              <td>123 ABC Street</td>
-              <td>1231245342</td>
-            </tr>
+            {{#each customers}}
+              <tr>
+                {{#each this}}
+                  <td>{{this}}</td>
+                {{/each}}
+              </tr>
+            {{/each}}
           </table>
         </div>
       </div>
