@@ -1,4 +1,5 @@
 const express = require("express");
+const handlebars = require("express-handlebars");
 const session = require("express-session");
 const path = require("path");
 
@@ -10,9 +11,13 @@ const app = express();
 const port = 3000;
 
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
-// need to select view engine
-// app.set("view engine", "jade");
+const hbs = handlebars.create({
+  defaultLayout: "",
+  extname: ".hbs",
+});
+app.engine("hbs", hbs.engine);
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "/views"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

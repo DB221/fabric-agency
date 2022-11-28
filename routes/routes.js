@@ -6,18 +6,19 @@ const { auth } = require("../helper/auth");
 // const db = dbo.getDb();
 let session;
 
-router.get("/", auth, async (req, res) => {
-  res.send("hehe");
+router.get("/", async (req, res) => {
+  res.redirect("/suppliers");
 });
 
 // get all suppliers (for suppliers view)
-router.get("/suppliers", auth, async (req, res) => {
-  const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
-  res.send(suppliers);
+router.get("/suppliers", async (req, res) => {
+  // const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
+  // res.send(suppliers);
+  res.render("suppliers");
 });
 
 // 2. Add information for a new supplier
-router.post("/supplier", auth, async (req, res) => {
+router.post("/supplier", async (req, res) => {
   const query = "INSERT ";
   const result = await dbo.getDb().execute(query);
   res.send(result);
@@ -34,9 +35,9 @@ router.get("/supplier/:sCode/categories", auth, async (req, res) => {
 });
 
 // get all customers (for customer view)
-router.get("/customers", auth, async (req, res) => {
-  const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
-  res.send(customers);
+router.get("/customers", async (req, res) => {
+  // const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
+  res.render("customers");
 });
 
 // 4. Report that provides full information about the order for each category of a customer
@@ -47,9 +48,9 @@ router.get("/report/customer", async (req, res) => {
 });
 
 // get all categories (for categories view)
-router.get("/categories", auth, async (req, res) => {
-  const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
-  res.send(categories);
+router.get("/categories", async (req, res) => {
+  // const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
+  res.render("categories");
 });
 
 // login
