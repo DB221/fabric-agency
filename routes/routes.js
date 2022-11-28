@@ -24,13 +24,13 @@ router.post("/supplier", async (req, res) => {
 });
 
 // 3. Get details of all categories which are provided by a supplier
-router.get("/supplier/:sCode/categories", auth, async (req, res) => {
+router.get("/supplier/:sCode/categories", async (req, res) => {
   const sCode = req.params.sCode;
 
   const query = `SELECT * FROM CATEGORY WHERE S_CODE = '${sCode}'`;
-  const result = await dbo.getDb().execute(query);
+  const categories = await dbo.getDb().execute(query);
 
-  res.send(result);
+  res.render("supplier-categories", { sCode, categories: categories.rows });
 });
 
 // get all customers (for customer view)
@@ -53,6 +53,10 @@ router.get("/categories", async (req, res) => {
 });
 
 // login
+router.get("/login", async (req, res) => {
+  res.render("login");
+});
+
 router.post("/login", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
