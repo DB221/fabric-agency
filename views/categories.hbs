@@ -25,6 +25,7 @@
       background-color: dodgerblue; color: white; } .header-right { float:
       right; } @media screen and (max-width: 500px) { .header a { float: none;
       display: block; text-align: left; } .header-right { float: none; } }
+      .current {background-color: #ccc;}
     </style>
   </head>
 
@@ -50,7 +51,7 @@
       <a
         href="/categories"
         target="_parent"
-        class="w3-bar-item w3-button w3-round-xlarge"
+        class="w3-bar-item w3-button w3-round-xlarge current"
       ><i class="fa fa-window-restore"></i></a>
       <a
         href="/customers"
@@ -70,12 +71,14 @@
             <i class="w3-xxlarge fa fa-window-restore"></i>
           </div>
           <div class="w3-rest">
-            <input
-              class="w3-input w3-border"
-              name="search"
-              type="text"
-              placeholder="Search Here..."
-            />
+            <form action="/categories/search">
+              <input
+                class="w3-input w3-border"
+                name="q"
+                type="text"
+                placeholder="Search Here..."
+              />
+            </form>
           </div>
         </div>
         <div class="data w3-responsive">

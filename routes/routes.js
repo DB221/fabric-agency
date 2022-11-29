@@ -10,6 +10,7 @@ router.get("/", async (req, res) => {
   res.redirect("/suppliers");
 });
 
+///////////////////////////////////////////////////////////////////// SUPPLIERS /////////////////////////////////////////////////////////////////////
 // get all suppliers (for suppliers view)
 router.get("/suppliers", async (req, res) => {
   const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
@@ -113,6 +114,54 @@ router.get("/supplier/:sCode/categories", async (req, res) => {
   res.render("supplier-categories", { sCode, pagin });
 });
 
+// search
+router.get("/suppliers/search", async (req, res) => {
+  const q = req.query.q;
+  const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
+
+  // find match
+  const matchedSuppliers = suppliers.rows.filter((supplier) => {
+    for (let field of supplier) {
+      if (
+        typeof field == "string" &&
+        field.toLowerCase().indexOf(q.toLowerCase()) !== -1
+      ) {
+        return true;
+      }
+    }
+  });
+
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/suppliers/search?q=${q}&page=${page - 1}`;
+  }
+
+  if (endIndex < matchedSuppliers.length) {
+    pagin.next = `/suppliers/search?q=${q}&page=${page + 1}`;
+  }
+  pagin.suppliers = matchedSuppliers.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(matchedSuppliers.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push(i + 1);
+  }
+
+  res.render("suppliers", { pagin });
+});
+
+///////////////////////////////////////////////////////////////////// CUSTOMERS /////////////////////////////////////////////////////////////////////
 // get all customers (for customer view)
 router.get("/customers", async (req, res) => {
   const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
@@ -154,6 +203,54 @@ router.get("/report/customer", async (req, res) => {
   res.send(result);
 });
 
+// search
+router.get("/customers/search", async (req, res) => {
+  const q = req.query.q;
+  const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
+
+  // find match
+  const matchedCustomers = customers.rows.filter((customer) => {
+    for (let field of customer) {
+      if (
+        typeof field == "string" &&
+        field.toLowerCase().indexOf(q.toLowerCase()) !== -1
+      ) {
+        return true;
+      }
+    }
+  });
+
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/customers/search?q=${q}&page=${page - 1}`;
+  }
+
+  if (endIndex < matchedCustomers.length) {
+    pagin.next = `/customers/search?q=${q}&page=${page + 1}`;
+  }
+  pagin.customers = matchedCustomers.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(matchedCustomers.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push(i + 1);
+  }
+
+  res.render("customers", { pagin });
+});
+
+///////////////////////////////////////////////////////////////////// CATEGORIES /////////////////////////////////////////////////////////////////////
 // get all categories (for categories view)
 router.get("/categories", async (req, res) => {
   const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
@@ -188,6 +285,54 @@ router.get("/categories", async (req, res) => {
   res.render("categories", { pagin });
 });
 
+// search
+router.get("/categories/search", async (req, res) => {
+  const q = req.query.q;
+  const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
+
+  // find match
+  const matchedCategories = categories.rows.filter((category) => {
+    for (let field of category) {
+      if (
+        typeof field == "string" &&
+        field.toLowerCase().indexOf(q.toLowerCase()) !== -1
+      ) {
+        return true;
+      }
+    }
+  });
+
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/categories/search?q=${q}&page=${page - 1}`;
+  }
+
+  if (endIndex < matchedCategories.length) {
+    pagin.next = `/categories/search?q=${q}&page=${page + 1}`;
+  }
+  pagin.categories = matchedCategories.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(matchedCategories.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push(i + 1);
+  }
+
+  res.render("categories", { pagin });
+});
+
+///////////////////////////////////////////////////////////////////// AUTHENTICATION /////////////////////////////////////////////////////////////////////
 // login
 router.get("/login", async (req, res) => {
   res.render("login");
