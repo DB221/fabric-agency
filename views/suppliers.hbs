@@ -70,7 +70,7 @@
           >&times;</span>
           {{successMessage}}</div>
       {{/if}}
-      <h2 style="font-weight: bold;">Suppliers {{message}}</h2>
+      <h2 style="font-weight: bold;">Suppliers</h2>
       <div class="first w3-container w3-border w3-round-xlarge">
         <div class="w3-row w3-section">
           <div class="w3-col" style="width: 50px">
@@ -105,29 +105,40 @@
                 <th>Partner staff code</th>
               </tr>
             </thead>
-            {{#each suppliers}}
-              <tr class="row-data">
-                {{#each this}}
-                  <td>{{this}}</td>
-                {{/each}}
-              </tr>
-            {{/each}}
-          </table>
-        </div>
-      </div>
-    </div>
+            {{#with pagin}}
+              {{#each suppliers}}
+                <tr class="row-data">
+                  {{#each this}}
+                    <td>{{this}}</td>
+                  {{/each}}
+                </tr>
+              {{/each}}
+            {{/with}}
 
-    <div class="w3-container w3-display-bottommiddle" style="margin-left: 70px">
-      <div class="w3-center">
-        <div class="w3-bar">
-          <a href="#" class="w3-button">&laquo;</a>
-          <a href="#" class="w3-button">1</a>
-          <a href="#" class="w3-button">2</a>
-          <a href="#" class="w3-button">3</a>
-          <a href="#" class="w3-button">4</a>
-          <a href="#" class="w3-button">&raquo;</a>
+          </table>
+          <div
+            class="w3-container w3-display-bottommiddle"
+            style="margin-left: 70px"
+          >
+            <div class="w3-center">
+              <div class="w3-bar">
+                {{#with pagin}}
+                  <a href="{{prev}}" class="w3-button">&laquo;</a>
+                  {{#each pages}}
+                    <a
+                      href="/suppliers?page={{this}}"
+                      class="w3-button"
+                    >{{this}}</a>
+                  {{/each}}
+                  <a href="{{next}}" class="w3-button">&raquo;</a>
+                {{/with}}
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
+
     </div>
 
     <script src="/js/suppliers.js"></script>

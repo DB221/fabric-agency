@@ -13,12 +13,41 @@ router.get("/", async (req, res) => {
 // get all suppliers (for suppliers view)
 router.get("/suppliers", async (req, res) => {
   const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
+
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/suppliers?page=${page - 1}`;
+  }
+
+  if (endIndex < suppliers.rows.length) {
+    pagin.next = `/suppliers?page=${page + 1}`;
+  }
+  pagin.suppliers = suppliers.rows.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(suppliers.rows.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push(i + 1);
+  }
+
   const successMessage = req.flash("successMessage")[0];
 
   res.render("suppliers", {
-    suppliers: suppliers.rows,
+    pagin: pagin,
     successMessage,
   });
+  // res.send(pagin);
 });
 
 // 2. Add information for a new supplier
@@ -54,13 +83,68 @@ router.get("/supplier/:sCode/categories", async (req, res) => {
   const query = `SELECT * FROM CATEGORY WHERE S_CODE = '${sCode}'`;
   const categories = await dbo.getDb().execute(query);
 
-  res.render("supplier-categories", { sCode, categories: categories.rows });
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/categories?page=${page - 1}`;
+  }
+
+  if (endIndex < categories.rows.length) {
+    pagin.next = `/categories?page=${page + 1}`;
+  }
+  pagin.categories = categories.rows.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(categories.rows.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push(i + 1);
+  }
+
+  res.render("supplier-categories", { sCode, pagin });
 });
 
 // get all customers (for customer view)
 router.get("/customers", async (req, res) => {
   const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
-  res.render("customers", { customers: customers.rows });
+
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/customers?page=${page - 1}`;
+  }
+
+  if (endIndex < customers.rows.length) {
+    pagin.next = `/customers?page=${page + 1}`;
+  }
+  pagin.customers = customers.rows.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(customers.rows.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push(i + 1);
+  }
+
+  res.render("customers", { pagin });
 });
 
 // 4. Report that provides full information about the order for each category of a customer
@@ -73,7 +157,35 @@ router.get("/report/customer", async (req, res) => {
 // get all categories (for categories view)
 router.get("/categories", async (req, res) => {
   const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
-  res.render("categories", { categories: categories.rows });
+
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/categories?page=${page - 1}`;
+  }
+
+  if (endIndex < categories.rows.length) {
+    pagin.next = `/categories?page=${page + 1}`;
+  }
+  pagin.categories = categories.rows.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(categories.rows.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push(i + 1);
+  }
+
+  res.render("categories", { pagin });
 });
 
 // login
