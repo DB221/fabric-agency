@@ -1,4 +1,5 @@
 const express = require("express");
+const flash = require("connect-flash");
 const handlebars = require("express-handlebars");
 const session = require("express-session");
 const path = require("path");
@@ -30,6 +31,7 @@ app.use(
     cookie: { maxAge: 1000 * 60 * 60 * 24 },
   })
 );
+app.use(flash());
 
 app.use("/", indexRouter);
 

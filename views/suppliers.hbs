@@ -14,6 +14,7 @@
 
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <style>
       * { box-sizing: border-box; } body { margin: 0; font-family: Arial,
       Helvetica, sans-serif; } .header { overflow: hidden; background-color:
@@ -27,6 +28,7 @@
       display: block; text-align: left; } .header-right { float: none; } }
       .row-data { cursor: pointer; }
     </style>
+    <link rel="stylesheet" href="/css/alert.css" />
   </head>
 
   <body>
@@ -61,15 +63,27 @@
     </div>
 
     <div class="w3-container" style="margin-left: 70px">
-      <h2 style="font-weight: bold;">Suppliers</h2>
+      {{#if successMessage}}
+        <div class="alert-success"><span
+            class="closebtn"
+            onclick="this.parentElement.style.display='none';"
+          >&times;</span>
+          {{successMessage}}</div>
+      {{/if}}
+      <h2 style="font-weight: bold;">Suppliers {{message}}</h2>
       <div class="first w3-container w3-border w3-round-xlarge">
         <div class="w3-row w3-section">
           <div class="w3-col" style="width: 50px">
-            <i class="w3-xxlarge fa fa-search-plus"></i>
+            <i class="w3-xxlarge fa fa-search"></i>
           </div>
           <div class="w3-col w3-right w3-container" style="width: 50px">
             <i class="w3-xxlarge fa fa-user-circle"></i>
           </div>
+          <a href="/supplier-insert">
+            <div class="w3-col w3-right w3-container" style="width: 50px">
+              <i class="w3-xxlarge fa fa-plus-square-o"></i>
+            </div>
+          </a>
           <div class="w3-rest">
             <input
               class="w3-input w3-border"
