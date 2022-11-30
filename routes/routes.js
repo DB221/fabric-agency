@@ -15,6 +15,24 @@ router.get("/", async (req, res) => {
 router.get("/suppliers", async (req, res) => {
   const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
 
+  for (let supplier of suppliers.rows) {
+    const phoneNum = await dbo
+      .getDb()
+      .execute(
+        `SELECT * FROM SUP_PHONE_NUMBERS WHERE S_Code = '${supplier[0]}'`
+      );
+
+    let phoneNumsField = "";
+    for (let i = 0; i < phoneNum.rows.length; ++i) {
+      phoneNumsField += phoneNum.rows[i][1];
+      if (i != phoneNum.rows.length - 1) {
+        phoneNumsField += ", ";
+      }
+    }
+
+    supplier.push(phoneNumsField);
+  }
+
   // pagination data
   const limit = 12;
   let page = parseInt(req.query.page);
@@ -64,11 +82,20 @@ router.post("/supplier", async (req, res) => {
   const bankAccount = req.body.bank_account;
   const taxCode = req.body.tax_code;
   const partnerStaffCode = req.body.partner_staff_code;
+  const phoneNumber = req.body.phone_number;
 
   const query = `INSERT INTO SUPPLIER VALUES ('', '${name}', '${address}', '${bankAccount}', '${taxCode}', '${partnerStaffCode}')`;
-  console.log(query);
   try {
     await dbo.getDb().execute(query);
+    if (phoneNumber) {
+      const queryPhone = `SELECT * FROM SUPPLIER WHERE 
+      name ='${name}' AND address = '${address}' AND Bank_Account = '${bankAccount}' AND Tax_Code = '${taxCode}' AND Partner_Staff_Code = '${partnerStaffCode}'`;
+      const sup = await dbo.getDb().execute(queryPhone);
+
+      const newSCode = sup.rows[0][0];
+      const queryInsertPhone = `INSERT INTO SUP_PHONE_NUMBERS VALUES ('${newSCode}', '${phoneNumber}')`;
+      await dbo.getDb().execute(queryInsertPhone);
+    }
   } catch (e) {
     req.flash("dangerMessage", `${e.message}`);
     return res.redirect("/supplier-insert");
@@ -97,27 +124,81 @@ router.get("/supplier/:sCode/categories", async (req, res) => {
   const pagin = {};
 
   if (startIndex > 0) {
-    pagin.prev = `/categories?page=${page - 1}`;
+    pagin.prev = `/supplier/${sCode}/categories?page=${page - 1}`;
   }
 
   if (endIndex < categories.rows.length) {
-    pagin.next = `/categories?page=${page + 1}`;
+    pagin.next = `/supplier/${sCode}/categories?page=${page + 1}`;
   }
   pagin.categories = categories.rows.slice(startIndex, endIndex);
   pagin.limit = limit;
   let pageSize = Math.ceil(categories.rows.length / limit);
   pagin.pages = [];
   for (let i = 0; i < pageSize; ++i) {
-    pagin.pages.push(i + 1);
+    pagin.pages.push({ pageNum: i + 1, sCode });
   }
 
-  res.render("supplier-categories", { sCode, pagin });
+  res.render("supplier-details", { sCode, pagin });
+});
+
+router.get("/supplier/:sCode/phone-nums", async (req, res) => {
+  const sCode = req.params.sCode;
+
+  const query = `SELECT * FROM SUP_PHONE_NUMBERS WHERE S_CODE = '${sCode}'`;
+  const phoneNums = await dbo.getDb().execute(query);
+
+  // pagination data
+  const limit = 12;
+  let page = parseInt(req.query.page);
+
+  if (!page || page < 0) {
+    page = 1;
+  }
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const pagin = {};
+
+  if (startIndex > 0) {
+    pagin.prev = `/phone-nums?page=${page - 1}`;
+  }
+
+  if (endIndex < phoneNums.rows.length) {
+    pagin.next = `/phone-nums?page=${page + 1}`;
+  }
+  pagin.phoneNums = phoneNums.rows.slice(startIndex, endIndex);
+  pagin.limit = limit;
+  let pageSize = Math.ceil(phoneNums.rows.length / limit);
+  pagin.pages = [];
+  for (let i = 0; i < pageSize; ++i) {
+    pagin.pages.push({ pageNum: i + 1, sCode });
+  }
+
+  res.render("supplier-details", { sCode, pagin });
 });
 
 // search
 router.get("/suppliers/search", async (req, res) => {
   const q = req.query.q;
   const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
+
+  for (let supplier of suppliers.rows) {
+    const phoneNum = await dbo
+      .getDb()
+      .execute(
+        `SELECT * FROM SUP_PHONE_NUMBERS WHERE S_Code = '${supplier[0]}'`
+      );
+
+    let phoneNumsField = "";
+    for (let i = 0; i < phoneNum.rows.length; ++i) {
+      phoneNumsField += phoneNum.rows[i][1];
+      if (i != phoneNum.rows.length - 1) {
+        phoneNumsField += ", ";
+      }
+    }
+
+    supplier.push(phoneNumsField);
+  }
 
   // find match
   const matchedSuppliers = suppliers.rows.filter((supplier) => {

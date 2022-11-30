@@ -61,46 +61,61 @@
     </div>
 
     <div class="w3-container" style="margin-left: 70px">
-      <h2 style="font-weight: bold;">Supplier {{sCode}}'s categories</h2>
-      <div class="first w3-container w3-border w3-round-xlarge">
-        <div class="w3-row w3-section">
-          <div class="w3-col" style="width: 50px">
-            <i class="w3-xxlarge fa fa-search"></i>
-          </div>
-          <div class="w3-col w3-right w3-container" style="width: 50px">
-            <i class="w3-xxlarge fa fa-window-restore"></i>
-          </div>
-          <div class="w3-rest">
-            <input
-              class="w3-input w3-border"
-              name="search"
-              type="text"
-              placeholder="Search Here..."
-            />
-          </div>
+      <h2 style="font-weight: bold;">Supplier {{sCode}}</h2>
+      <div class="w3-margin">
+        <div class="w3-half">
+          <a href="/supplier/{{sCode}}/categories">
+            <h3 style="font-weight: bold;">Categories</h3>
+          </a>
         </div>
+        <div class="w3-half">
+          <a href="/supplier/{{sCode}}/phone-nums">
+            <h3 style="font-weight: bold;">Phone numbers</h3>
+          </a>
+        </div>
+      </div>
+
+      <div class="first w3-container w3-border w3-round-xlarge">
         <div class="data w3-responsive">
           <table class="w3-table-all w3-hoverable">
-            <thead>
-              <tr class="w3-light-grey">
-                <th>Code</th>
-                <th>Name</th>
-                <th>Color</th>
-                <th>Quantity</th>
-                <th>Supplier code</th>
-                <th>Date</th>
-                <th>Price</th>
-                <th>Imported quant</th>
-              </tr>
-            </thead>
+
             {{#with pagin}}
-              {{#each categories}}
-                <tr class="row-data">
-                  {{#each this}}
-                    <td>{{this}}</td>
-                  {{/each}}
-                </tr>
-              {{/each}}
+              {{#if categories}}
+                <thead>
+                  <tr class="w3-light-grey">
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Color</th>
+                    <th>Quantity</th>
+                    <th>Supplier code</th>
+                    <th>Date</th>
+                    <th>Price</th>
+                    <th>Imported quant</th>
+                  </tr>
+                </thead>
+                {{#each categories}}
+                  <tr class="row-data">
+                    {{#each this}}
+                      <td>{{this}}</td>
+                    {{/each}}
+                  </tr>
+                {{/each}}
+              {{/if}}
+              {{#if phoneNums}}
+                <thead>
+                  <tr class="w3-light-grey">
+                    <th>Code</th>
+                    <th>Phone numbers</th>
+                  </tr>
+                </thead>
+                {{#each phoneNums}}
+                  <tr class="row-data">
+                    {{#each this}}
+                      <td>{{this}}</td>
+                    {{/each}}
+                  </tr>
+                {{/each}}
+              {{/if}}
             {{/with}}
           </table>
         </div>
@@ -112,12 +127,24 @@
         <div class="w3-bar">
           {{#with pagin}}
             <a href="{{prev}}" class="w3-button">&laquo;</a>
-            {{#each pages}}
-              <a
-                href="/supplier-categories?page={{this}}"
-                class="w3-button"
-              >{{this}}</a>
-            {{/each}}
+            {{#if categories}}
+              {{#each pages}}
+                <a
+                  href="/supplier/{{sCode}}/categories?page={{pageNum}}"
+                  class="w3-button"
+                >{{pageNum}}
+                </a>
+              {{/each}}
+            {{/if}}
+            {{#if phoneNums}}
+              {{#each pages}}
+                <a
+                  href="/supplier/{{sCode}}/phone-nums?page={{pageNum}}"
+                  class="w3-button"
+                >{{pageNum}}
+                </a>
+              {{/each}}
+            {{/if}}
             <a href="{{next}}" class="w3-button">&raquo;</a>
           {{/with}}
         </div>
