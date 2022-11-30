@@ -1,0 +1,15 @@
+.partial {
+  color: rgb(235, 235, 6);
+}
+
+.full {
+  color: green;
+}
+
+.new {
+  color: blue;
+}
+
+.cancel {
+  color: red;
+}

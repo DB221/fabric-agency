@@ -331,6 +331,45 @@ router.get("/customers/search", async (req, res) => {
   res.render("customers", { pagin });
 });
 
+router.get("/customer/:cCode/report", async (req, res) => {
+  const cCode = req.params.cCode;
+
+  const queryOrders = `SELECT * FROM ORDER_TB WHERE Cus_Code = '${cCode}'`;
+  const orders = await dbo.getDb().execute(queryOrders);
+  const report = {
+    orders: [],
+  };
+  for (let order of orders.rows) {
+    const orderObj = {
+      code: order[0],
+      price: order[1],
+      history: 9,
+      status: order[5],
+      categories: [],
+    };
+    // order[0] is O_Code
+    const queryContain = `SELECT * FROM CONTAINS WHERE O_Code = '${order[0]}'`;
+    const contains = await dbo.getDb().execute(queryContain);
+
+    for (let contain of contains.rows) {
+      const catCode = contain[0];
+      const queryContain = `SELECT * FROM CATEGORY WHERE C_Code = '${catCode}'`;
+      const categories = await dbo.getDb().execute(queryContain);
+      let categoryObj = {};
+      for (let category of categories.rows) {
+        categoryObj = {
+          code: category[0],
+          name: category[1],
+        };
+        orderObj.categories.push(categoryObj);
+      }
+    }
+    report.orders.push(orderObj);
+  }
+
+  res.render("customer-report", { cCode, report });
+});
+
 ///////////////////////////////////////////////////////////////////// CATEGORIES /////////////////////////////////////////////////////////////////////
 // get all categories (for categories view)
 router.get("/categories", async (req, res) => {

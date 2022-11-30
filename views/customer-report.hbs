@@ -27,6 +27,7 @@
       display: block; text-align: left; } .header-right { float: none; } }
       .row-data { cursor: pointer; } .current {background-color: #ccc;}
     </style>
+    <link rel="stylesheet" href="/css/paid.css" />
   </head>
 
   <body>
@@ -61,49 +62,27 @@
     </div>
 
     <div class="w3-container" style="margin-left: 70px">
-      <h2 style="font-weight: bold;">Customers</h2>
+      <h2 style="font-weight: bold;">Customer {{cCode}}'s report</h2>
       <div class="first w3-container w3-border w3-round-xlarge">
-        <div class="w3-row w3-section">
-          <div class="w3-col" style="width: 50px">
-            <i class="w3-xxlarge fa fa-search"></i>
-          </div>
-          <div class="w3-col w3-right w3-container" style="width: 50px">
-            <i class="w3-xxlarge fa fa-users"></i>
-          </div>
-          <div class="w3-rest">
-            <form action="/customers/search">
-              <input
-                class="w3-input w3-border"
-                name="q"
-                type="text"
-                placeholder="Search Here..."
-              />
-            </form>
-          </div>
-        </div>
+
         <div class="data w3-responsive">
-          <table class="w3-table-all w3-hoverable" id="cus-tb">
-            <thead>
-              <tr class="w3-light-grey">
-                <th>Code</th>
-                <th>FName</th>
-                <th>LName</th>
-                <th>Address</th>
-                <th>Arrearage</th>
-                <th>Office staff code</th>
-              </tr>
-            </thead>
-            {{#with pagin}}
-              {{#each customers}}
-                <tr class="row-data">
-                  {{#each this}}
-                    <td>{{this}}</td>
-                  {{/each}}
-                </tr>
+          {{#with report}}
+            {{#each orders}}
+              <h3><strong>{{code}}
+                  - Price:
+                  {{price}}, Paid:
+                  {{history}}</strong></h3>
+              <strong>Status:
+                <span class="{{status}}">{{status}}</span>
+              </strong>
+              {{#each categories}}
+                <p>⦿ Category: {{code}}, Name: {{name}}</p>
               {{/each}}
-            {{/with}}
-          </table>
+            {{/each}}
+          {{/with}}
+
         </div>
+
       </div>
     </div>
 
@@ -120,7 +99,5 @@
         </div>
       </div>
     </div>
-
-    <script src="/js/customers.js"></script>
   </body>
 </html>
