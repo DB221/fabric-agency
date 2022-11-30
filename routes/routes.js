@@ -7,12 +7,16 @@ const { auth } = require("../helper/auth");
 let session;
 
 router.get("/", async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+
   res.redirect("/suppliers");
 });
 
 ///////////////////////////////////////////////////////////////////// SUPPLIERS /////////////////////////////////////////////////////////////////////
 // get all suppliers (for suppliers view)
-router.get("/suppliers", async (req, res) => {
+router.get("/suppliers", auth, async (req, res) => {
   const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
 
   for (let supplier of suppliers.rows) {
@@ -70,12 +74,12 @@ router.get("/suppliers", async (req, res) => {
 });
 
 // 2. Add information for a new supplier
-router.get("/supplier-insert", async (req, res) => {
+router.get("/supplier-insert", auth, async (req, res) => {
   const dangerMessage = req.flash("dangerMessage")[0];
   res.render("supplier-insert", { dangerMessage });
 });
 
-router.post("/supplier", async (req, res) => {
+router.post("/supplier", auth, async (req, res) => {
   // sup_code, sname, address, bank_account, tax_code, partner_staff_code
   const name = req.body.name;
   const address = req.body.address;
@@ -105,7 +109,7 @@ router.post("/supplier", async (req, res) => {
 });
 
 // 3. Get details of all categories which are provided by a supplier
-router.get("/supplier/:sCode/categories", async (req, res) => {
+router.get("/supplier/:sCode/categories", auth, async (req, res) => {
   const sCode = req.params.sCode;
 
   const query = `SELECT * FROM CATEGORY WHERE S_CODE = '${sCode}'`;
@@ -141,7 +145,7 @@ router.get("/supplier/:sCode/categories", async (req, res) => {
   res.render("supplier-details", { sCode, pagin });
 });
 
-router.get("/supplier/:sCode/phone-nums", async (req, res) => {
+router.get("/supplier/:sCode/phone-nums", auth, async (req, res) => {
   const sCode = req.params.sCode;
 
   const query = `SELECT * FROM SUP_PHONE_NUMBERS WHERE S_CODE = '${sCode}'`;
@@ -178,7 +182,7 @@ router.get("/supplier/:sCode/phone-nums", async (req, res) => {
 });
 
 // search
-router.get("/suppliers/search", async (req, res) => {
+router.get("/suppliers/search", auth, async (req, res) => {
   const q = req.query.q;
   const suppliers = await dbo.getDb().execute("SELECT * FROM SUPPLIER");
 
@@ -244,7 +248,7 @@ router.get("/suppliers/search", async (req, res) => {
 
 ///////////////////////////////////////////////////////////////////// CUSTOMERS /////////////////////////////////////////////////////////////////////
 // get all customers (for customer view)
-router.get("/customers", async (req, res) => {
+router.get("/customers", auth, async (req, res) => {
   const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
 
   // pagination data
@@ -278,14 +282,33 @@ router.get("/customers", async (req, res) => {
 });
 
 // 4. Report that provides full information about the order for each category of a customer
-router.get("/report/customer", async (req, res) => {
+/* report {
+  orders: [
+      {
+          code,
+          price,
+          history,
+          status,
+          categories: [
+              {
+              code:,
+              name,
+              }
+          ]
+      },
+      {
+
+      }
+  ]
+} */
+router.get("/report/customer", auth, async (req, res) => {
   const query = "";
   const result = await dbo.getDb().execute(query);
   res.send(result);
 });
 
 // search
-router.get("/customers/search", async (req, res) => {
+router.get("/customers/search", auth, async (req, res) => {
   const q = req.query.q;
   const customers = await dbo.getDb().execute("SELECT * FROM CUSTOMER");
 
@@ -331,7 +354,7 @@ router.get("/customers/search", async (req, res) => {
   res.render("customers", { pagin });
 });
 
-router.get("/customer/:cCode/report", async (req, res) => {
+router.get("/customer/:cCode/report", auth, async (req, res) => {
   const cCode = req.params.cCode;
 
   const queryOrders = `SELECT * FROM ORDER_TB WHERE Cus_Code = '${cCode}'`;
@@ -372,7 +395,7 @@ router.get("/customer/:cCode/report", async (req, res) => {
 
 ///////////////////////////////////////////////////////////////////// CATEGORIES /////////////////////////////////////////////////////////////////////
 // get all categories (for categories view)
-router.get("/categories", async (req, res) => {
+router.get("/categories", auth, async (req, res) => {
   const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
 
   // pagination data
@@ -406,7 +429,7 @@ router.get("/categories", async (req, res) => {
 });
 
 // search
-router.get("/categories/search", async (req, res) => {
+router.get("/categories/search", auth, async (req, res) => {
   const q = req.query.q;
   const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
 
@@ -455,7 +478,8 @@ router.get("/categories/search", async (req, res) => {
 ///////////////////////////////////////////////////////////////////// AUTHENTICATION /////////////////////////////////////////////////////////////////////
 // login
 router.get("/login", async (req, res) => {
-  res.render("login");
+  const dangerMessage = req.flash("dangerMessage")[0];
+  res.render("login", { dangerMessage });
 });
 
 router.post("/login", async (req, res) => {
@@ -465,13 +489,13 @@ router.post("/login", async (req, res) => {
   try {
     await dbo.connectToDatabase(username, password);
   } catch (e) {
-    console.log({ e });
-    return res.status(400).send("Invalid username or password");
+    req.flash("dangerMessage", `${e.message}`);
+    return res.redirect("/login");
   }
   session = req.session;
   session.userId = username;
   console.log({ session });
-  res.send("OK");
+  res.redirect("/suppliers");
 });
 
 // logout

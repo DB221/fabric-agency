@@ -1,4 +1,5 @@
 const oracledb = require("oracledb");
+oracledb.autoCommit = true;
 
 let dbConnection;
 
@@ -9,6 +10,7 @@ module.exports = {
       password: password,
       connectionString: "localhost:1521/xe",
     });
+    console.log("Connect to database succesfully");
   },
   getDb: function () {
     if (!dbConnection) {

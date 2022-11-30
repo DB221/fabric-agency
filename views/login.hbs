@@ -4,6 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/signup.css" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       rel="stylesheet"
@@ -15,25 +16,43 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
     />
     <title>Fabric Agency</title>
+    <link rel="stylesheet" href="/css/alert.css" />
   </head>
   <body>
+    {{#if dangerMessage}}
+      <div class="alert-danger"><span
+          class="closebtn"
+          onclick="this.parentElement.style.display='none';"
+        >&times;</span>
+        {{dangerMessage}}</div>
+    {{/if}}
     <div id="wapper">
-      <form action="" id="form-login">
+
+      <form action="/login" id="form-login" method="post">
         <h1 class="form-heading">Farbic Agency</h1>
         <div class="form-group">
           <i class="far fa-user"></i>
-          <input type="text" class="form-input" placeholder="username" />
+          <input
+            type="text"
+            class="form-input"
+            placeholder="username"
+            name="username"
+          />
         </div>
 
         <div class="form-group">
           <i class="fas fa-key"></i>
-          <input type="password" class="form-input" placeholder="password" />
+          <input
+            type="password"
+            class="form-input"
+            placeholder="password"
+            name="password"
+          />
           <div id="eye">
             <i class="far fa-eye"></i>
           </div>
         </div>
-
-        <a href="/" class="login-link">Login</a>
+        <button class="login-link">Login</button>
       </form>
     </div>
   </body>
