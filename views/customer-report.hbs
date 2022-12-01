@@ -75,6 +75,13 @@
               <strong>Status:
                 <span class="{{status}}">{{status}}</span>
               </strong>
+              {{#if cancelReason}}
+                <div>
+                  <strong class="{{status}}">Reason:
+                  </strong>
+                  <span class="{{status}}">{{cancelReason}}</span>
+                </div>
+              {{/if}}
               {{#each categories}}
                 <p>⦿ Category: {{code}}, Name: {{name}}</p>
               {{/each}}

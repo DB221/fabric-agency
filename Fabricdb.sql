@@ -1,58 +1,58 @@
 CREATE TABLE employee (
      --depID 01:office, 02: opertional, 03:manager, 04: partner
-    emp_code     VARCHAR(9),
-    fname        VARCHAR(40),
+    emp_code     VARCHAR(9)     NOT NULL,
+    fname        VARCHAR(40)    NOT NULL,
     lname        VARCHAR(40),
-    gender       VARCHAR(9),
-    address      VARCHAR(90),
-    phone_number VARCHAR(15),
+    gender       VARCHAR(9)     NOT NULL,
+    address      VARCHAR(90)    NOT NULL,
+    phone_number VARCHAR(15)    NOT NULL,
     depid        INT,
     PRIMARY KEY ( emp_code )
 );
 
 CREATE TABLE operational_staff (
-    operational_staff_code VARCHAR(9),
+    operational_staff_code VARCHAR(9)   NOT NULL,
     PRIMARY KEY ( operational_staff_code ),
     FOREIGN KEY ( operational_staff_code )
         REFERENCES employee ( emp_code )
 );
 
 CREATE TABLE manager (
-    manager_code VARCHAR(9),
+    manager_code VARCHAR(9)     NOT NULL,
     PRIMARY KEY ( manager_code ),
     FOREIGN KEY ( manager_code )
         REFERENCES employee ( emp_code )
 );
 
 CREATE TABLE partner_staff (
-    partner_staff_code VARCHAR(9),
+    partner_staff_code VARCHAR(9)   NOT NULL,
     PRIMARY KEY ( partner_staff_code ),
     FOREIGN KEY ( partner_staff_code )
         REFERENCES employee ( emp_code )
 );
 
 CREATE TABLE office_staff (
-    office_staff_code VARCHAR(9),
+    office_staff_code VARCHAR(9)    NOT NULL,
     PRIMARY KEY ( office_staff_code ),
     FOREIGN KEY ( office_staff_code )
         REFERENCES employee ( emp_code )
 );
 
 CREATE TABLE supplier (
-    sup_code           VARCHAR(9),
-    sname              VARCHAR(40),
-    address            VARCHAR(100),
-    bank_account       VARCHAR(15),
-    tax_code           VARCHAR(15),
-    partner_staff_code VARCHAR(9),
+    sup_code           VARCHAR(9)   NOT NULL,
+    sname              VARCHAR(40)  NOT NULL,
+    address            VARCHAR(100) NOT NULL,
+    bank_account       VARCHAR(15)  NOT NULL UNIQUE,
+    tax_code           VARCHAR(15)  NOT NULL UNIQUE,
+    partner_staff_code VARCHAR(9)   NOT NULL,
     PRIMARY KEY ( sup_code ),
     FOREIGN KEY ( partner_staff_code )
         REFERENCES partner_staff ( partner_staff_code )
 );
 
 CREATE TABLE sup_phone_number (
-    sup_code     VARCHAR(9),
-    phone_number VARCHAR(15),
+    sup_code     VARCHAR(9)     NOT NULL,
+    phone_number VARCHAR(15)    NOT NULL,
     PRIMARY KEY ( sup_code,
                   phone_number ),
     FOREIGN KEY ( sup_code )
@@ -60,23 +60,23 @@ CREATE TABLE sup_phone_number (
 );
 
 CREATE TABLE fcategory (
-    cat_code          VARCHAR(9),
-    fabric_name       VARCHAR(15),
-    color             VARCHAR(15),
-    quantity          INT NOT NULL,
-    sup_code          VARCHAR(9),
-    fdate             DATE,
-    purchase_price    INT NOT NULL,
-    imported_quantity INT NOT NULL,
+    cat_code          VARCHAR(9)    NOT NULL,
+    fabric_name       VARCHAR(15)   NOT NULL,
+    color             VARCHAR(15)   NOT NULL,
+    quantity          INT           CHECK (quantity > 0)    NOT NULL,
+    sup_code          VARCHAR(9)    NOT NULL,
+    fdate             DATE          NOT NULL,
+    purchase_price    INT           CHECK (purchase_price > 0)      NOT NULL,
+    imported_quantity INT           CHECK (imported_quantity > 0)    NOT NULL,
     PRIMARY KEY ( cat_code ),
     FOREIGN KEY ( sup_code )
         REFERENCES supplier ( sup_code )
 );
 
 CREATE TABLE cat_current_price (
-    cat_code VARCHAR(9),
-    price    INT NOT NULL,
-    cdate    DATE,
+    cat_code VARCHAR(9)     NOT NULL,
+    price    INT    CHECK (Price > 0)   NOT NULL,
+    cdate    DATE           NOT NULL,
     PRIMARY KEY ( cat_code,
                   price,
                   cdate ),
@@ -85,35 +85,74 @@ CREATE TABLE cat_current_price (
 );
 
 CREATE TABLE bolt (
-    cat_code VARCHAR(9),
-    bol_code VARCHAR(9),
-    blength  INT NOT NULL,
+    cat_code    VARCHAR(9)     NOT NULL,
+    bol_code    VARCHAR(9)     NOT NULL,
+    blength  FLOAT  CHECK (blength > 0) NOT NULL,
     PRIMARY KEY ( bol_code,
                   cat_code ),
     FOREIGN KEY ( cat_code )
         REFERENCES fcategory ( cat_code )
 );
 
+CREATE TABLE customer (
+    cus_code          VARCHAR(9)    NOT NULL,
+    fname             VARCHAR(40)   NOT NULL,
+    lname             VARCHAR(40),
+    address           VARCHAR(100),
+    arrearage         INT CHECK (arrearage >= 0) NOT NULL,
+    office_staff_code VARCHAR(9)    NOT NULL,
+    PRIMARY KEY ( cus_code ),
+    FOREIGN KEY ( office_staff_code )
+        REFERENCES office_staff ( office_staff_code )
+);
+
+CREATE TABLE cus_phone_number (
+    cus_code     VARCHAR(9) NOT NULL,
+    phone_number VARCHAR(15)    NOT NULL,
+    PRIMARY KEY ( cus_code,
+                  phone_number ),
+    FOREIGN KEY ( cus_code )
+        REFERENCES customer ( cus_code )
+);
+
+CREATE TABLE cus_partial_payment (
+    cus_code VARCHAR(9) NOT NULL,
+    pdate    DATE   NOT NULL,
+    amount   INT    CHECK (Amount > 0)  NOT NULL,
+    PRIMARY KEY ( cus_code,
+                  pdate,
+                  amount ),
+    FOREIGN KEY ( cus_code )
+        REFERENCES customer ( cus_code )
+);
+
 CREATE TABLE ord (
-    ord_code               VARCHAR(9),
-    total_price            INT NOT NULL,
-    cus_code               VARCHAR(9),
-    ord_date               DATE,
-    operational_staff_code VARCHAR(9),
-    ord_status             VARCHAR(15),
-    history_payment        INT,
+    ord_code               VARCHAR(9)   NOT NULL,
+    total_price            INT CHECK (Total_Price > 0)  NOT NULL,
+    cus_code               VARCHAR(9)   NOT NULL,
+    ord_date               DATE         NOT NULL,
+    operational_staff_code VARCHAR(9)   NOT NULL,
+    ord_status             VARCHAR(15)  NOT NULL,
+    history_payment        INT          CHECK (history_payment >= 0)  NOT NULL,
     PRIMARY KEY ( ord_code ),
     FOREIGN KEY ( operational_staff_code )
-        REFERENCES operational_staff ( operational_staff_code )
+        REFERENCES operational_staff ( operational_staff_code ),
+    FOREIGN KEY ( cus_code )
+        REFERENCES customer ( cus_code )
 );
 
 CREATE TABLE cancel_order (
-    ord_code               VARCHAR(9),
-    cus_code               VARCHAR(9),
-    operational_staff_code VARCHAR(9),
-    reason                 VARCHAR(100),
+    ord_code               VARCHAR(9)   NOT NULL,
+    cus_code               VARCHAR(9)   NOT NULL,
+    operational_staff_code VARCHAR(9)   NOT NULL,
+    reason                 VARCHAR(100) NOT NULL,
+    PRIMARY KEY ( ord_code ), 
     FOREIGN KEY ( ord_code )
-        REFERENCES ord ( ord_code )
+        REFERENCES ord ( ord_code ),
+    FOREIGN KEY ( cus_code )
+        REFERENCES customer ( cus_code ),  
+    FOREIGN KEY ( operational_staff_code )
+        REFERENCES operational_staff ( operational_staff_code )  
 );
 
 
@@ -121,9 +160,9 @@ CREATE TABLE cancel_order (
 --
 
 CREATE TABLE contain (
-    cat_code VARCHAR(9),
-    bol_code VARCHAR(9),
-    ord_code VARCHAR(9),
+    cat_code VARCHAR(9) NOT NULL,
+    bol_code VARCHAR(9) NOT NULL,
+    ord_code VARCHAR(9) NOT NULL,
     PRIMARY KEY ( cat_code,
                   bol_code ),
     FOREIGN KEY ( bol_code,
@@ -132,37 +171,6 @@ CREATE TABLE contain (
                           cat_code )
 );
 
-CREATE TABLE customer (
-    cus_code          VARCHAR(9),
-    fname             VARCHAR(40),
-    lname             VARCHAR(40),
-    address           VARCHAR(100),
-    arrearage         INT NOT NULL,
-    office_staff_code VARCHAR(9),
-    PRIMARY KEY ( cus_code ),
-    FOREIGN KEY ( office_staff_code )
-        REFERENCES office_staff ( office_staff_code )
-);
-
-CREATE TABLE cus_phone_number (
-    cus_code     VARCHAR(9),
-    phone_number VARCHAR(15),
-    PRIMARY KEY ( cus_code,
-                  phone_number ),
-    FOREIGN KEY ( cus_code )
-        REFERENCES customer ( cus_code )
-);
-
-CREATE TABLE cus_partial_payment (
-    cus_code VARCHAR(9),
-    pdate    DATE,
-    amount   INT NOT NULL,
-    PRIMARY KEY ( cus_code,
-                  pdate,
-                  amount ),
-    FOREIGN KEY ( cus_code )
-        REFERENCES customer ( cus_code )
-);
 ---auto sequence to insert ID
 CREATE SEQUENCE emp_seq START WITH 1;
 CREATE  SEQUENCE sup_seq START WITH 1;
@@ -221,13 +229,13 @@ CHECK (fabric_name IN ('Silk','Khaki','Crewel','Jacquard','Faux silk','Damask'))
 /
 ALTER TABLE ord
 ADD CONSTRAINT check_ord
-CHECK (ord_status IN ('new','ordered','full paid','partial paid'));
+CHECK (ord_status IN ('new','cancelled','full paid','partial paid', 'ordered'));
 /
 ---INSERT--
 INSERT INTO Employee VALUES ('','Kim' ,'Walter','M', '835 Frank Tunnel Wrightmouth,MI', '+1 2025550118',01);
-INSERT INTO Employee VALUES ('', 'Lebron',    'James',     'M', '"1414 David Throughway Port Jason, OH',  '+1 2815550176',01);
-INSERT INTO Employee VALUES ('',  'Carrie', 'Francis',  'M', '"14023 Rodriguez Passage Port Jacobville, PR',   '+61 7 52775734',01);
-INSERT INTO Employee VALUES ('',   'Lionel','Messi',  'F', '"26104 Alexander Groves Alexandriaport, WY', '+1 613 555 0165',02);
+INSERT INTO Employee VALUES ('', 'Lebron',    'James',     'M', '1414 David Throughway Port Jason, OH',  '+1 2815550176',01);
+INSERT INTO Employee VALUES ('',  'Carrie', 'Francis',  'M', '14023 Rodriguez Passage Port Jacobville, PR',   '+61 7 52775734',01);
+INSERT INTO Employee VALUES ('',   'Lionel','Messi',  'F', '26104 Alexander Groves Alexandriaport, WY', '+1 613 555 0165',02);
 INSERT INTO Employee VALUES ('',   'Joel', 'Combs',  'M', '975 Fire Oak, Humble, TX, US', '+1 256 555 0114',02);
 INSERT INTO Employee VALUES ('',   'Johnny',  'English',  'F', '5631 Rice, Houston, TX, US',  '+1 281 555 0179',02);
 INSERT INTO Employee VALUES ('',   'Carla','Stinson' ,'F', '6705 Miller Orchard Suite 186 Lake Shanestad, MO ',  '+1 281 555 0102',03);
@@ -295,12 +303,12 @@ INSERT INTO Cat_current_price VALUES ('CAT0005', 450, '03-AUG-2022');
 INSERT INTO Cat_current_price VALUES ('CAT0006', 250, '02-AUG-2022');
 INSERT INTO Cat_current_price VALUES ('CAT0007', 100, '05-AUG-2022');
 
-INSERT INTO Customer VALUES ('', 'Hiep', 'Nguyen', '94 Tan Huong, SG ,VN ', 100, 'EC0001');
+INSERT INTO Customer VALUES ('', 'Hiep', 'Nguyen', '94 Tan Huong, SG ,VN ', 1000, 'EC0001');
 INSERT INTO Customer VALUES ('', 'Hai', 'Bui', '8 W Cerritos Ave', 0, 'EC0001');
-INSERT INTO Customer VALUES ('', 'Duy', 'Le', '302 Dunlap Ferry', 0, 'EC0002');
-INSERT INTO Customer VALUES ('', 'De', 'Paul', '34 Center St', 500, 'EC0003');
+INSERT INTO Customer VALUES ('', 'Duy', 'Le', '302 Dunlap Ferry', 2000, 'EC0002');
+INSERT INTO Customer VALUES ('', 'De', 'Paul', '34 Center St', 80, 'EC0003');
 INSERT INTO Customer VALUES ('', 'Jesse', 'Pinkman', '34 Saint Mery St', 2500, 'EC0003');
-INSERT INTO Customer VALUES ('', 'Walter', 'White', '34 New Mexico St', 0, 'EC0003');
+INSERT INTO Customer VALUES ('', 'Walter', 'White', '34 New Mexico St', 1500, 'EC0003');
 INSERT INTO Customer VALUES ('', 'John', 'Wick', '99 Indiana Jones St', 0, 'EC0002');
 
 INSERT INTO cus_phone_number VALUES ('CC0001','0943053012');
@@ -324,25 +332,32 @@ INSERT INTO Bolt VALUES ('CAT0007', 'BO0008', 20);
 -- Hiep partial paid oc0001 tong 2000 tra 1000 mua CAT0001 BO0001
 INSERT INTO ord VALUES ('OC0001', 2000, 'CC0001', '01-AUG-2022','EC0004','partial paid',1000);
 INSERT INTO contain VALUES('CAT0001','BO0001','OC0001');
-INSERT INTO ord VALUES ('OC0002',4000, 'CC0005','29-AUG-2022','EC0005','partial paid', 1500);
-INSERT INTO contain VALUES('CAT0002','BO0002','OC002');
+
+INSERT INTO ord VALUES ('OC0008', 120, 'CC0002', '24-DEC-2022','EC0004','ordered',120);
+INSERT INTO contain VALUES('CAT0004','BO0004','OC0008');
 
 INSERT INTO ord VALUES ('OC0004',1000, 'CC0003','11-SEP-2022','EC0006','full paid', 1000);
-INSERT INTO contain VALUES('CAT0003','BO0003','OC0003');
-INSERT INTO ord VALUES ('OC0003',100, 'CC0004','01-SEP-2022','EC0006','ordered', 0);
-
-INSERT INTO ord VALUES ('OC0005',2000, 'CC0003','11-SEP-2022','EC0006','full paid', 2000);
+INSERT INTO contain VALUES('CAT0005','BO0005','OC0004');
+INSERT INTO ord VALUES ('OC0005',2000, 'CC0003','11-SEP-2022','EC0006','new', 0);
 INSERT INTO contain VALUES('CAT0007','BO0008','OC0005');
 
-INSERT INTO ord VALUES ('OC0006',500, 'CC0006','11-NOV-2022','EC0006','full paid', 2000);
+INSERT INTO ord VALUES ('OC0003',100, 'CC0004','01-SEP-2022','EC0006','partial paid', 20);
+INSERT INTO contain VALUES('CAT0003','BO0003','OC0003');
+
+INSERT INTO ord VALUES ('OC0002',4000, 'CC0005','29-AUG-2022','EC0005','partial paid', 1500);
+INSERT INTO contain VALUES('CAT0002','BO0002','OC0002');
+
+INSERT INTO ord VALUES ('OC0006',2000, 'CC0006','11-NOV-2022','EC0006','partial paid', 500);
 INSERT INTO contain VALUES('CAT0006','BO0006','OC0006');
 
+INSERT INTO ord VALUES ('OC0009',666666, 'CC0007','15-NOV-2022','EC0005','cancelled', 0);
+INSERT INTO contain VALUES('CAT0001','BO0007','OC0009');
+INSERT INTO cancel_order VALUES ('OC0009','CC0007','EC0005', 'Want to change another category of fabric');
 
 
 
-INSERT INTO cancel_order VALUES ('OC0003','CC0004','EC0006','Want to change another category of fabric');
-INSERT INTO cancel_order VALUES ('OC0006','CC0003','EC0006','Complain about delivery');
-INSERT INTO cancel_order VALUES ('OC0005','CC0006','EC0006','Want to increase quantity');
+
+
 
 
 
