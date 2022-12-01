@@ -356,14 +356,14 @@ SET purchase_price= purchase_price*1.1
 WHERE fabric_name='Silk' and fdate > TO_DATE('2020-09-01','YYYY-MM-DD');
 
 END;
-
+/
 EXEC UpdateSilkprice;
 
 --2.2b
 
 --- get_order
 SELECT * FROM Ord WHERE ord_code IN (SELECT ord_code FROM Contain WHERE (cat_code,bol_code)IN (SELECT  cat_code,bol_code from Bolt WHERE cat_code IN (SELECT cat_code from Fcategory where sup_code = (select sup_code from Supplier WHERE sname = 'Silk Agency'))));
-
+/
 ---function total cau 2.2c
 CREATE OR REPLACE FUNCTION Total_price (b IN Fcategory.sup_code%TYPE)
 RETURN NUMBER
@@ -375,7 +375,7 @@ BEGIN
       GROUP BY sup_code;
       RETURN a;
 END Total_price ;
-
+/
 --2.2d
 
 ---sort
@@ -394,9 +394,9 @@ LOOP
 DBMS_OUTPUT.PUT_LINE(rec.cate_number||' '|| rec.sup_code);-- thu tu tang dan tu tren xuong
 END LOOP;
 END sort_cate;
-
+/
 SET SERVEROUTPUT ON;
 EXEC sort_cate (TO_DATE('2018-09-01','YYYY-MM-DD'),TO_DATE('2023-09-01','YYYY-MM-DD'));
 
-
+/
 
