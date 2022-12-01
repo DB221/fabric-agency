@@ -1,5 +1,5 @@
 CREATE TABLE employee (
-     --depID 01:office, 02: opertional, 03:manager, 04: partner
+     --depID 01:office, 02: operational, 03:manager, 04: partner
     emp_code     VARCHAR(9)     NOT NULL,
     fname        VARCHAR(40)    NOT NULL,
     lname        VARCHAR(40),
