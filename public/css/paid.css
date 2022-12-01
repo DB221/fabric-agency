@@ -6,10 +6,14 @@
   color: green;
 }
 
+.ordered {
+  color: rgb(224, 22, 231);
+}
+
 .new {
   color: blue;
 }
 
-.cancel {
+.cancelled {
   color: red;
 }

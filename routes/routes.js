@@ -23,7 +23,7 @@ router.get("/suppliers", auth, async (req, res) => {
     const phoneNum = await dbo
       .getDb()
       .execute(
-        `SELECT * FROM SUP_PHONE_NUMBERS WHERE S_Code = '${supplier[0]}'`
+        `SELECT * FROM SUP_PHONE_NUMBER WHERE sup_code = '${supplier[0]}'`
       );
 
     let phoneNumsField = "";
@@ -93,11 +93,11 @@ router.post("/supplier", auth, async (req, res) => {
     await dbo.getDb().execute(query);
     if (phoneNumber) {
       const queryPhone = `SELECT * FROM SUPPLIER WHERE 
-      name ='${name}' AND address = '${address}' AND Bank_Account = '${bankAccount}' AND Tax_Code = '${taxCode}' AND Partner_Staff_Code = '${partnerStaffCode}'`;
+      sname ='${name}' AND address = '${address}' AND bank_account = '${bankAccount}' AND tax_code = '${taxCode}' AND partner_staff_code = '${partnerStaffCode}'`;
       const sup = await dbo.getDb().execute(queryPhone);
 
       const newSCode = sup.rows[0][0];
-      const queryInsertPhone = `INSERT INTO SUP_PHONE_NUMBERS VALUES ('${newSCode}', '${phoneNumber}')`;
+      const queryInsertPhone = `INSERT INTO SUP_PHONE_NUMBER VALUES ('${newSCode}', '${phoneNumber}')`;
       await dbo.getDb().execute(queryInsertPhone);
     }
   } catch (e) {
@@ -112,7 +112,7 @@ router.post("/supplier", auth, async (req, res) => {
 router.get("/supplier/:sCode/categories", auth, async (req, res) => {
   const sCode = req.params.sCode;
 
-  const query = `SELECT * FROM CATEGORY WHERE S_CODE = '${sCode}'`;
+  const query = `SELECT * FROM FCATEGORY WHERE sup_code = '${sCode}'`;
   const categories = await dbo.getDb().execute(query);
 
   // pagination data
@@ -148,7 +148,7 @@ router.get("/supplier/:sCode/categories", auth, async (req, res) => {
 router.get("/supplier/:sCode/phone-nums", auth, async (req, res) => {
   const sCode = req.params.sCode;
 
-  const query = `SELECT * FROM SUP_PHONE_NUMBERS WHERE S_CODE = '${sCode}'`;
+  const query = `SELECT * FROM SUP_PHONE_NUMBER WHERE sup_code = '${sCode}'`;
   const phoneNums = await dbo.getDb().execute(query);
 
   // pagination data
@@ -190,7 +190,7 @@ router.get("/suppliers/search", auth, async (req, res) => {
     const phoneNum = await dbo
       .getDb()
       .execute(
-        `SELECT * FROM SUP_PHONE_NUMBERS WHERE S_Code = '${supplier[0]}'`
+        `SELECT * FROM SUP_PHONE_NUMBER WHERE sup_code = '${supplier[0]}'`
       );
 
     let phoneNumsField = "";
@@ -207,10 +207,10 @@ router.get("/suppliers/search", auth, async (req, res) => {
   // find match
   const matchedSuppliers = suppliers.rows.filter((supplier) => {
     for (let field of supplier) {
-      if (
-        typeof field == "string" &&
-        field.toLowerCase().indexOf(q.toLowerCase()) !== -1
-      ) {
+      if (typeof field != "string") {
+        field = field.toString();
+      }
+      if (field.toLowerCase().indexOf(q.toLowerCase()) !== -1) {
         return true;
       }
     }
@@ -281,32 +281,6 @@ router.get("/customers", auth, async (req, res) => {
   res.render("customers", { pagin });
 });
 
-// 4. Report that provides full information about the order for each category of a customer
-/* report {
-  orders: [
-      {
-          code,
-          price,
-          history,
-          status,
-          categories: [
-              {
-              code:,
-              name,
-              }
-          ]
-      },
-      {
-
-      }
-  ]
-} */
-router.get("/report/customer", auth, async (req, res) => {
-  const query = "";
-  const result = await dbo.getDb().execute(query);
-  res.send(result);
-});
-
 // search
 router.get("/customers/search", auth, async (req, res) => {
   const q = req.query.q;
@@ -315,10 +289,10 @@ router.get("/customers/search", auth, async (req, res) => {
   // find match
   const matchedCustomers = customers.rows.filter((customer) => {
     for (let field of customer) {
-      if (
-        typeof field == "string" &&
-        field.toLowerCase().indexOf(q.toLowerCase()) !== -1
-      ) {
+      if (typeof field != "string") {
+        field = field.toString();
+      }
+      if (field.toLowerCase().indexOf(q.toLowerCase()) !== -1) {
         return true;
       }
     }
@@ -354,10 +328,31 @@ router.get("/customers/search", auth, async (req, res) => {
   res.render("customers", { pagin });
 });
 
+// 4. Report that provides full information about the order for each category of a customer
+/* report {
+  orders: [
+      {
+          code,
+          price,
+          history,
+          status,
+          reason,
+          categories: [
+              {
+                code:,
+                name,
+              }
+          ]
+      },
+      {
+
+      }
+  ]
+} */
 router.get("/customer/:cCode/report", auth, async (req, res) => {
   const cCode = req.params.cCode;
 
-  const queryOrders = `SELECT * FROM ORDER_TB WHERE Cus_Code = '${cCode}'`;
+  const queryOrders = `SELECT * FROM ORD WHERE cus_code = '${cCode}'`;
   const orders = await dbo.getDb().execute(queryOrders);
   const report = {
     orders: [],
@@ -366,17 +361,28 @@ router.get("/customer/:cCode/report", auth, async (req, res) => {
     const orderObj = {
       code: order[0],
       price: order[1],
-      history: 9,
+      history: order[6],
       status: order[5],
       categories: [],
     };
     // order[0] is O_Code
-    const queryContain = `SELECT * FROM CONTAINS WHERE O_Code = '${order[0]}'`;
+    // cancel reason
+    if (orderObj.status == "cancelled") {
+      const cancelOrders = await dbo
+        .getDb()
+        .execute(`SELECT * FROM CANCEL_ORDER WHERE ord_code = '${order[0]}'`);
+      console.log(cancelOrders.rows);
+      orderObj.cancelReason = cancelOrders.rows[0][3];
+    }
+
+    // select categories
+
+    const queryContain = `SELECT * FROM CONTAIN WHERE ord_code = '${order[0]}'`;
     const contains = await dbo.getDb().execute(queryContain);
 
     for (let contain of contains.rows) {
       const catCode = contain[0];
-      const queryContain = `SELECT * FROM CATEGORY WHERE C_Code = '${catCode}'`;
+      const queryContain = `SELECT * FROM FCATEGORY WHERE cat_code = '${catCode}'`;
       const categories = await dbo.getDb().execute(queryContain);
       let categoryObj = {};
       for (let category of categories.rows) {
@@ -396,7 +402,7 @@ router.get("/customer/:cCode/report", auth, async (req, res) => {
 ///////////////////////////////////////////////////////////////////// CATEGORIES /////////////////////////////////////////////////////////////////////
 // get all categories (for categories view)
 router.get("/categories", auth, async (req, res) => {
-  const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
+  const categories = await dbo.getDb().execute("SELECT * FROM FCATEGORY");
 
   // pagination data
   const limit = 12;
@@ -431,15 +437,15 @@ router.get("/categories", auth, async (req, res) => {
 // search
 router.get("/categories/search", auth, async (req, res) => {
   const q = req.query.q;
-  const categories = await dbo.getDb().execute("SELECT * FROM CATEGORY");
+  const categories = await dbo.getDb().execute("SELECT * FROM FCATEGORY");
 
   // find match
   const matchedCategories = categories.rows.filter((category) => {
     for (let field of category) {
-      if (
-        typeof field == "string" &&
-        field.toLowerCase().indexOf(q.toLowerCase()) !== -1
-      ) {
+      if (typeof field != "string") {
+        field = field.toString();
+      }
+      if (field.toLowerCase().indexOf(q.toLowerCase()) !== -1) {
         return true;
       }
     }
