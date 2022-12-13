@@ -1,7 +1,7 @@
 # fabric-agency
 
 ## Technology
-- For the techstack, we used **NodeJS** and template engine **HandlebarsJS** to handle requests between Frontend and Backend. For database, we use **Oracle Database**.
+- For the techstack, we used **NodeJS** with **Express** and template engine **HandlebarsJS** to handle requests between Frontend and Backend. For database, we use **Oracle Database**.
 
 ## Run the project locally
 ### Setup database
